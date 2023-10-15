@@ -2,27 +2,16 @@
 DELIMITER //
 CREATE PROCEDURE ComputeAverageScoreForUser(IN user_id INT)
 BEGIN
-    DECLARE total_score FLOAT;
-    DECLARE total_projects INT;
+    DECLARE avg_score DECIMAL(10,2);
 
-    -- Calculate the total score and the number of projects
-    SELECT SUM(score), COUNT(DISTINCT project_id)
-    INTO total_score, total_projects
+    -- Compute the average score
+    SELECT AVG(score) INTO avg_score
     FROM corrections
     WHERE user_id = user_id;
 
-    -- Update the average score for the user
-    IF total_projects > 0 THEN
-        UPDATE users
-        SET average_score = total_score / total_projects
-        WHERE id = user_id;
-    ELSE
-        -- Handle the case where there are no projects
-        UPDATE users
-        SET average_score = 0
-        WHERE id = user_id;
-    END IF;
-END;
-//
+    -- Update the average score in the users table
+    UPDATE users
+    SET average_score = avg_score
+    WHERE id = user_id;
+END //
 DELIMITER ;
-
