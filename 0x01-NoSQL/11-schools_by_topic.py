@@ -4,9 +4,10 @@ Return a list of schools having a specific topic.
 """
 
 from pymongo.collection import Collection
+from typing import List
 
 
-def schools_by_topic(mongo_collection: Collection, topic: str) -> list:
+def schools_by_topic(mongo_collection: Collection, topic: str) -> List[dict]:
     """
     Return a list of schools that have a specific topic.
 
