@@ -41,3 +41,4 @@ if __name__ == "__main__":
     mongo_db = client.logs
     mongo_collection = mongo_db.nginx
     log_stats(mongo_collection)
+
