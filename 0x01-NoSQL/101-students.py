@@ -10,7 +10,7 @@ from typing import List, Dict, Any
 def top_students(mongo_collection: Any) -> List[Dict[str, Any]]:
     """
     Returns all students sorted by average score.
-    
+ 
     :param mongo_collection: pymongo collection object
     :return: List of students sorted by average score
     """
