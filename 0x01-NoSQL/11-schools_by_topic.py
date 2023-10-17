@@ -20,3 +20,4 @@ def schools_by_topic(mongo_collection: Collection, topic: str) -> List[dict]:
     """
     schools = mongo_collection.find({"topics": topic})
     return list(schools)
+
