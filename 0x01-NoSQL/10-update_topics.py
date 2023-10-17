@@ -21,3 +21,4 @@ def update_topics(mongo_collection: Collection, name: str, topics: list):
     # Use the update_one method to find the document with the specified name
     # and update its topics.
     mongo_collection.update_one({"name": name}, {"$set": {"topics": topics}})
+
