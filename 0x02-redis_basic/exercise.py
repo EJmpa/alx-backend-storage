@@ -54,18 +54,24 @@ def replay(fn: Callable):
     """
     Display the history of calls of a particular function.
     """
-    key_prefix = fn.__qualname__
-    inputs_key = f"{key_prefix}:inputs"
-    outputs_key = f"{key_prefix}:outputs"
+    @wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        """wrapper for the decorated function"""
+        key_prefix = fn.__qualname__
+        inputs_key = f"{key_prefix}:inputs"
+        outputs_key = f"{key_prefix}:outputs"
 
-    inputs = fn._redis.lrange(inputs_key, 0, -1)
-    outputs = fn._redis.lrange(outputs_key, 0, -1)
+        inputs = self._redis.lrange(inputs_key, 0, -1)
+        outputs = self._redis.lrange(outputs_key, 0, -1)
 
-    print(f"{key_prefix} was called {len(inputs)} times:")
-    for input_str, output in zip(inputs, outputs):
-        input_args = eval(input_str)
-        input_str = ", ".join(map(repr, input_args))
-        print(f"{key_prefix}(*({input_str},)) -> {output}")
+        print(f"{key_prefix} was called {len(inputs)} times:")
+
+        for input_str, output in zip(inputs, outputs):
+            input_args = eval(input_str)
+            input_str = ", ".join(map(repr, input_args))
+            print(f"{key_prefix}(*({input_str},)) -> {output.decode('utf-8')}")
+
+    return wrapper
 
 
 class Cache:
