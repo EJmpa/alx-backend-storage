@@ -5,30 +5,44 @@ Web module for fetching and caching web content.
 import requests
 import redis
 from functools import wraps
-from typing import Callable
 
 # Create a Redis client
 redis_client = redis.Redis()
 
 
-def cache_result(fn: Callable) -> Callable:
+def cache_result(fn):
     """
     Decorator to cache the result of a function.
     """
     @wraps(fn)
     def wrapped(url, *args, **kwargs):
-        cache_key = f'cache:{url}'
-        cached_result = redis_client.get(cache_key)
+        # Check if the result is already cached
+        cached_result = redis_client.get(f'cache:{url}')
         if cached_result:
             return cached_result.decode('utf-8')
 
         result = fn(url, *args, **kwargs)
-        redis_client.setex(cache_key, 10, result)
+        redis_client.setex(f'cache:{url}', 10, result)
         return result
 
     return wrapped
 
 
+def track_access_count(fn):
+    """
+    Decorator to track the access count of a URL.
+    """
+    @wraps(fn)
+    def wrapped(url, *args, **kwargs):
+        url_key = f'count:{url}'
+        redis_client.incr(url_key)
+        return fn(url, *args, **kwargs)
+
+    return wrapped
+
+
+@track_access_count
+@cache_result
 def get_page(url: str) -> str:
     """
     Fetches the HTML content of a URL and caches the result with a
@@ -40,9 +54,6 @@ def get_page(url: str) -> str:
     Returns:
         str: The HTML content of the URL.
     """
-    url_key = f'count:{url}'
-    redis_client.incr(url_key)
-
     response = requests.get(url)
     if response.status_code == 200:
         return response.text
@@ -51,7 +62,9 @@ def get_page(url: str) -> str:
 
 
 if __name__ == "__main__":
-    url = "http://slowwly.robertomurray.co.uk"
+    # Test the get_page function with a slow URL
+    url = "http://slowwly.robertomurray.co.uk/delay\
+    /5000/url/https://www.example.com"
     content = get_page(url)
     print(f"Content from {url}:\n{content}")
 
