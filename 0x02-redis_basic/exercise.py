@@ -33,8 +33,8 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) ->
-    Union[str, bytes, int, float, None]:
+    def get(self, key: str, fn: Callable = None) -> \
+            Union[str, bytes, int, float, None]:
         """
         Retrieve data from Redis using the provided key. Optionally, apply a
         conversion function.
